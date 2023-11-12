@@ -5,6 +5,7 @@
 \title{assemble some constants for a run}
 \usage{
 simba_config(
+  workdir = paste0(tempfile(), "/simba_work"),
   min_n_genes = NULL,
   norm_method = "lib_size",
   n_top_genes = NULL,
