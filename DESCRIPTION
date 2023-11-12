@@ -14,6 +14,7 @@ License: Artistic-2.0
 Encoding: UTF-8
 Depends: R (>= 4.3)
 Suggests: knitr, testthat, BiocStyle, basilisk, shiny
+Imports: zellkonverter
 VignetteBuilder: knitr
 biocViews: Infrastructure
 RoxygenNote: 7.2.3
