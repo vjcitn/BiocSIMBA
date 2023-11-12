@@ -5,17 +5,25 @@
 #   train_wd_interval = 10L, train_workers = 12L, train_wd = .015521) {
 
 
-#' train Simba PBG embedding for an SCE (or h5ad)
+#' produce graph underlying Simba PBG embedding for an sc-RNA-seq SCE (or h5ad)
+#' @param h5adpath character(1) path to h5ad
+#' @param simconf output of `simba_config`
+#' @return list with elements gdf (a data.frame of source, relation, destination, only
+#' produced if gen_graph_copy is TRUE in simba_config), work_contents (full pathnames
+#' of pbg outputs), workdir (a copy of the simconf$workdir)
 #' @examples
 #' h5adpath = "/home/vincent/tenx3k.h5ad"
-#' train_sce(h5adpath)
+#' gout = gen_graph_sce(h5adpath, simconf = simba_config(gen_graph_copy=TRUE)) # generally want copy to be FALSE
+#' head(gout$gdf)
+#' dir(gout$work_contents, full.names=TRUE, recursive=TRUE)
 #' @export
-train_sce = function(h5adpath, simconf = simba_config()) {
+gen_graph_sce = function(h5adpath, simconf = simba_config(gen_graph_copy=FALSE)) {
   proc = basilisk::basiliskStart(bsklenv, testload="simba") # avoid package-specific import
   basilisk::basiliskRun(proc, function(h5ad, simba_config) {
-     sref = reticulate::import("simba")
-     adata_CG = sref$read_h5ad(h5adpath)
      conf = simconf
+     sref = reticulate::import("simba")
+     sref$settings$set_workdir(conf$workdir)
+     adata_CG = sref$read_h5ad(h5adpath)
      if (!is.null(conf$min_n_genes)) sref$pp$filter_cells_rna(adata_CG,
                as.integer(conf$min_n_genes))
      sref$pp$normalize(adata_CG, method = conf$norm_method)
@@ -24,9 +32,11 @@ train_sce = function(h5adpath, simconf = simba_config()) {
                as.integer(conf$n_top_genes))
      sref$tl$discretize(adata_CG, n_bins = as.integer(conf$disc_n_bins))
     # generate graph
-     sref$tl$gen_graph(list_CG=list(adata_CG), copy=conf$gen_graph_copy,
+     gdf = sref$tl$gen_graph(list_CG=list(adata_CG), copy=conf$gen_graph_copy,
 	use_highly_variable = conf$gen_graph_hvg, dirname = conf$gen_graph_dirname) 
-     sref
+     sref$tl$pbg_train(auto_wd = TRUE, save_wd = TRUE, output = 'model' )
+     work_contents = dir(conf$workdir, full.names=TRUE)
+     list(gdf = gdf, work_contents=work_contents, workdir=conf$workdir)
      }, h5adpath, simconf)
 }
 

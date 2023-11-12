@@ -12,13 +12,7 @@ simba_config(
   disc_n_bins = 5L,
   gen_graph_copy = FALSE,
   gen_graph_hvg = FALSE,
-  gen_graph_dirname = "graph0",
-  train_auto_wd = TRUE,
-  train_save_wd = TRUE,
-  train_output = "model",
-  train_wd_interval = 10L,
-  train_workers = 12L,
-  train_wd = 0.015521
+  gen_graph_dirname = "graph0"
 )
 }
 \description{
