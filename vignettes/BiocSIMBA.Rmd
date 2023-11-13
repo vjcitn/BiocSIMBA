@@ -68,11 +68,12 @@ get_fitted_3k = function() {
 ```
 
 The most familiar visualization (of the cell
-embedding) is based on UMAP.
+embedding) is based on UMAP.  With plotly, annotation
+is revealed on hover, and zoom to a subregion is
+accomplished with mouse-drag.
 
 ```{r viz1} 
-#, fig.width=unit(8, "cm")}
-# g3k = get_fitted_3k()  # could use
+set.seed(1234) # to permit reproducible umap
 viz_cemb_umap_ly(gout, "celltype")
 ```
 
@@ -82,3 +83,9 @@ The joint embedding can be visualized with:
 jj = joint_emb_CG( gout )
 viz_joint_umap_ly( jj, "celltype")
 ```
+
+Use the mouse to zoom in on the region where monocytes are plotted.
+Hover around cells and genes to note the colocation of
+cells annotated to monocyte subsets, and the associated genes.
+The specific genes can take some effort to find.  Coordinates
+can be obtained from `jj`.
