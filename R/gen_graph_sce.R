@@ -8,9 +8,14 @@
 #' produce graph underlying Simba PBG embedding for an sc-RNA-seq SCE (or h5ad)
 #' @param h5adpath character(1) path to h5ad
 #' @param simconf output of `simba_config`
-#' @return list with elements gdf (a data.frame of source, relation, destination, only
+#' @return an instance of S3 class `simba_scrna`,
+#' a list with elements gdf (a data.frame of source, relation, destination, only
 #' produced if gen_graph_copy is TRUE in simba_config), work_contents (full pathnames
-#' of pbg outputs), workdir (a copy of the simconf$workdir)
+#' of pbg outputs), workdir (a copy of the simconf$workdir),
+#' C_emb (a SingleCellExperiment instance with cell embedding),
+#' G_emb (a SingleCellExperiment instance with gene embedding),
+#' pp_CG (a SingleCellExperiment instance with preprocessed representation
+#' of the input data).
 #' @note simba module is imported with convert=FALSE to help zellkonverter.  In
 #' the example gout$gdf is a python reference that could go stale.
 #' @examples
@@ -18,6 +23,7 @@
 #' gout = gen_graph_sce(h5adpath, simconf = simba_config(gen_graph_copy=TRUE)) # generally want copy to be FALSE
 #' gout$gdf
 #' dir(gout$work_contents, full.names=TRUE, recursive=TRUE)
+#' gout
 #' @export
 gen_graph_sce = function (h5adpath, simconf = simba_config(gen_graph_copy = FALSE)) 
 {
@@ -42,10 +48,24 @@ gen_graph_sce = function (h5adpath, simconf = simba_config(gen_graph_copy = FALS
         G_emb = zellkonverter::AnnData2SCE(ndict["G"], hdf5_backed=FALSE)
         origAD = zellkonverter::AnnData2SCE(adata_CG)
         work_contents = dir(conf$workdir, full.names = TRUE)
-        list(gdf = gdf, work_contents = work_contents, workdir = conf$workdir, 
+        ans = list(gdf = gdf, work_contents = work_contents, workdir = conf$workdir, 
             C_emb = C_emb, G_emb = G_emb, ppCG=origAD)
+        class(ans) = c("simba_scrna", "list")
+        ans
     }, h5adpath, simconf)
 }
+
+#' print method
+#' @param x instance of simba_scrna
+#' @param \dots not used
+#' @export
+print.simba_scrna = function(x, ...) {
+  dd = dim(x$ppCG)
+  cat(sprintf("simba_scrna instance based on input with %d genes and %d cells.\n",
+        dd[1], dd[2]))
+  cat(sprintf("  The workdir used was %s.\n", x$workdir))
+}
+
 
 gen_graph_sce_bad = function(h5adpath, simconf = simba_config(gen_graph_copy=FALSE)) {
   proc = basilisk::basiliskStart(bsklenv, testload="simba") # avoid package-specific import

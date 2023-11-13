@@ -12,9 +12,14 @@ gen_graph_sce(h5adpath, simconf = simba_config(gen_graph_copy = FALSE))
 \item{simconf}{output of `simba_config`}
 }
 \value{
-list with elements gdf (a data.frame of source, relation, destination, only
+an instance of S3 class `simba_scrna`,
+a list with elements gdf (a data.frame of source, relation, destination, only
 produced if gen_graph_copy is TRUE in simba_config), work_contents (full pathnames
-of pbg outputs), workdir (a copy of the simconf$workdir)
+of pbg outputs), workdir (a copy of the simconf$workdir),
+C_emb (a SingleCellExperiment instance with cell embedding),
+G_emb (a SingleCellExperiment instance with gene embedding),
+pp_CG (a SingleCellExperiment instance with preprocessed representation
+of the input data).
 }
 \description{
 produce graph underlying Simba PBG embedding for an sc-RNA-seq SCE (or h5ad)
@@ -28,4 +33,5 @@ h5adpath = "/home/vincent/tenx3k.h5ad"
 gout = gen_graph_sce(h5adpath, simconf = simba_config(gen_graph_copy=TRUE)) # generally want copy to be FALSE
 gout$gdf
 dir(gout$work_contents, full.names=TRUE, recursive=TRUE)
+gout
 }
