@@ -1,0 +1,10 @@
+url: https://github.com/vjcitn/BiocSIMBA
+template:
+  bootswatch: flatly
+
+footer:
+  structure: 
+    left: pkgdown
+    right: legal
+  components:
+    legal: Provided without **any warranty**.

@@ -1,0 +1,83 @@
+---
+title: "BiocSIMBA - graph-based embedding of multiomic outcomes"
+author: "Vincent J. Carey, stvjc at channing.harvard.edu"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{BiocSIMBA - graph-based embedding of multiomic outcomes}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    highlight: pygments
+    number_sections: yes
+    theme: united
+    toc: yes
+---
+
+# Introduction
+
+SIMBA ([paper link](https://www.nature.com/articles/s41592-023-01899-8)) ([github](https://github.com/pinellolab/simba)) provides methods for "graph embeddings" of relationships between
+elements assayed in multimodal single cell experiments.  The main
+software stack is written in Python.  This package uses basilisk
+to simplify use of the SIMBA methods in R/Bioconductor.
+
+Steps that can be taken with this software:
+
+- preprocess an RNA-seq experiment serialized as AnnData/h5ad, using
+scanpy methods
+- discretize the expression measures
+- form a typed graph with weighted edges suitable for embedding computations
+by a customized version of pytorch-biggraph
+- visualize the graph-based joint embedding of genes and cells
+
+# Illustration
+
+The TENx 3k PBMC data are included in the package.
+
+The heart of the system is `gen_graph_sce`.  This encapsulates
+calls from R to python and currently employs default settings
+for many tuning parameters.  The `simba_config` function
+can be used to modify some parameters, but this needs more work as of 13.11.23.
+
+```{r setup, message=FALSE}
+library(BiocSIMBA)
+h5adpath = system.file(file.path("h5ad", "tenx3k.h5ad"), package="BiocSIMBA")
+gout = gen_graph_sce(h5adpath)
+names(gout)
+gout$C_emb # 50-dimensional embedding of cells
+```
+
+The components of the output are described in the man page.  For this
+example there is an _a priori_ labeling of each cell recorded in the
+`celltype` colData element (that was present in the original h5ad
+serialization).  It needs to be propagated to the embedding.
+
+```{r doprop}
+names(colData(gout$C_emb))
+gout = annotate_C_emb(gout, "celltype")  # endomorphism
+names(colData(gout$C_emb))
+```
+
+To support exploration of an embedding without rebuilding it,
+a serialized embedding is available.
+```
+get_fitted_3k = function() {
+ readRDS(system.file("gout/gout3k.rds", package="BiocSIMBA"))
+}
+```
+
+The most familiar visualization (of the cell
+embedding) is based on UMAP.
+
+```{r viz1} 
+#, fig.width=unit(8, "cm")}
+# g3k = get_fitted_3k()  # could use
+viz_cemb_umap(gout, "celltype", ltxtsize=6, ptsize=1, lkeysize=.4)
+```
+
+The joint embedding can be visualized with:
+
+```{r viz2}
+jj = joint_emb_CG( gout )
+viz_joint_umap( jj, "celltype", ltxtsize=6, ptsize=1, lkeysize=.4 )
+```
