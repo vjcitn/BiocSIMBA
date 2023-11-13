@@ -29,7 +29,7 @@ simba module is imported with convert=FALSE to help zellkonverter.  In
 the example gout$gdf is a python reference that could go stale.
 }
 \examples{
-h5adpath = "/home/vincent/tenx3k.h5ad"
+h5adpath = system.file(file.path("h5ad", "tenx3k.h5ad"), package="BiocSIMBA")
 gout = gen_graph_sce(h5adpath, simconf = simba_config(gen_graph_copy=TRUE)) # generally want copy to be FALSE
 gout$gdf
 dir(gout$work_contents, full.names=TRUE, recursive=TRUE)
