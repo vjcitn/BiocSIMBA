@@ -14,7 +14,7 @@ License: Artistic-2.0
 Encoding: UTF-8
 Depends: R (>= 4.3), SingleCellExperiment
 Suggests: knitr, testthat, BiocStyle, shiny
-Imports: zellkonverter, basilisk, scater, uwot, ggplot2
+Imports: zellkonverter, basilisk, scater, uwot, ggplot2, plotly
 VignetteBuilder: knitr
 biocViews: Infrastructure
 RoxygenNote: 7.2.3

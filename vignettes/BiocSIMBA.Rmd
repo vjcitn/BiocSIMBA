@@ -41,6 +41,7 @@ can be used to modify some parameters, but this needs more work as of 13.11.23.
 
 ```{r setup, message=FALSE}
 library(BiocSIMBA)
+library(plotly)
 h5adpath = system.file(file.path("h5ad", "tenx3k.h5ad"), package="BiocSIMBA")
 gout = gen_graph_sce(h5adpath)
 names(gout)
@@ -72,12 +73,12 @@ embedding) is based on UMAP.
 ```{r viz1} 
 #, fig.width=unit(8, "cm")}
 # g3k = get_fitted_3k()  # could use
-viz_cemb_umap(gout, "celltype", ltxtsize=6, ptsize=1, lkeysize=.4)
+viz_cemb_umap_ly(gout, "celltype")
 ```
 
 The joint embedding can be visualized with:
 
 ```{r viz2}
 jj = joint_emb_CG( gout )
-viz_joint_umap( jj, "celltype", ltxtsize=6, ptsize=1, lkeysize=.4 )
+viz_joint_umap_ly( jj, "celltype")
 ```

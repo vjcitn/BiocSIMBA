@@ -92,7 +92,7 @@ get_fitted_3k = function() {
 }
 
 #' visualize the cell embedding
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except="last_plot")
 #' @importFrom uwot umap
 #' @param gout instance of `simba_scrna` with annotated C_emb component
 #' @param colour_by character(1) factor in colData of C_emb for colouring
@@ -158,3 +158,65 @@ viz_joint_umap = function (scej, cname, ptsize = 3,
         geom_point(size = ptsize, alpha=.8) + theme(legend.text = element_text(size = ltxtsize)) + 
         theme(legend.key.size = unit(lkeysize, "cm"))
 }
+
+#library(plotly)
+#addg = function (p=., sym = "NKG7", dat) 
+#{
+#    ro = dplyr::filter(dat, fullanno == sym)
+#    plotly::add_text(p, x = ro$x, y = ro$y, text = sym, 
+#        textfont=list(size=15, color="black"))
+#}
+#
+#plot_ly(ndf, x=~x, y=~y, color=~ent,
+#   mode="markers", text=~fullanno, type="scatter") 
+#     addg(dat=ndf) %>% 
+#     addg(sym="IL7R", dat=ndf) %>%
+#     addg(sym="CD8B", dat=ndf) %>%
+#     addg(sym="CD8A", dat=ndf) %>%
+#     addg(sym="BCL2", dat=ndf) %>%
+#     addg(sym="LDLRAP1", dat=ndf)
+#p
+
+#' interactively visualize the cell embedding
+#' @import plotly
+#' @param gout instance of `simba_scrna` with annotated C_emb component
+#' @param colour_by character(1) factor in colData of C_emb for colouring
+#' @param \dots passed to uwot::umap
+#' @return a plotly instance
+#' @examples
+#' g3k = get_fitted_3k()
+#' viz_cemb_umap_ly(g3k, "celltype")
+#' @export
+viz_cemb_umap_ly = function(gout, colour_by, ...) {
+  stopifnot(inherits(gout, "simba_scrna"))
+  stopifnot(colour_by %in% names(colData(gout$C_emb)))
+  um = uwot::umap(t(assay(gout$C_emb)), ...)
+  dd = data.frame(x=um[,1], y=um[,2], fac=colData(gout$C_emb)[[colour_by]])
+  plotly::plot_ly(dd, x=~x, y=~y, color=~fac, mode="markers", text=~fac,
+     type="scatter")
+}
+
+#' interactively visualize the joint embedding
+#' @import plotly
+#' @param scej a SingleCellExperiment instance produced by `joint_emb_CG`
+#' @param cname character(1) an element of colData to be used for coloring
+#' @param \dots passed to uwot::umap
+#' @return a plotly instance
+#' @examples
+#' g3k = get_fitted_3k()
+#' jj = joint_emb_CG( g3k )
+#' viz_joint_umap_ly(jj, "celltype")
+#' @export
+viz_joint_umap_ly = function(scej, cname, ...) {
+    stopifnot(inherits(scej, "SingleCellExperiment"))
+    stopifnot(cname %in% names(colData(scej)))
+    uu = uwot::umap(t(assay(scej)), ...)
+    txt = lab = colData(scej)[[cname]]
+    if (any(isg <- is.na(lab)))
+        lab[is.na(lab)] = "gene"
+    txt[which(isg)] = colnames(scej)[which(isg)]
+    ndf = data.frame(x = uu[, 1], y = uu[, 2], fac = lab, txt=txt)
+    plotly::plot_ly(ndf, x = ~x, y = ~y, color = ~fac,
+        mode = "markers", text = ~txt, type="scatter")
+}
+
