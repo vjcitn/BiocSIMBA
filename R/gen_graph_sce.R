@@ -111,9 +111,50 @@ viz_cemb_umap = function(gout, colour_by, ptsize=5, ltxtsize=30,
   stopifnot(colour_by %in% names(colData(gout$C_emb)))
   um = uwot::umap(t(assay(gout$C_emb)), ...)
   dd = data.frame(x=um[,1], y=um[,2], fac=colData(gout$C_emb)[[colour_by]])
-  ggplot(dd, aes(x=x,y=y,colour=fac, text=fac)) + geom_point(size=ptsize) + theme(legend.text=element_text(size=ltxtsize)) + theme(legend.key.size=unit(1.5, "cm"))
+  ggplot(dd, aes(x=x,y=y,colour=fac, text=fac)) + geom_point(size=ptsize) + theme(legend.text=element_text(size=ltxtsize)) + theme(legend.key.size=unit(lkeysize, "cm"))
 }
 
 
 #ggplot(nn, aes(x=x,y=y,colour=type)) + geom_point(size=5) + theme(legend.text=element_text(size=30)) + theme(legend.key.size=unit(1.5, "cm"))
 
+#' mutual embedding
+#' @examples
+#' g3k = get_fitted_3k()
+#' jj = joint_emb_CG( g3k )
+#' viz_joint_umap( jj, "celltype" )
+#' @export
+joint_emb_CG = function( sscr )
+{
+    proc = basilisk::basiliskStart(bsklenv, testload = "simba")
+    basilisk::basiliskRun(proc, function( sscr ) {
+     adC = zellkonverter::SCE2AnnData( sscr$C_emb )
+     adG = zellkonverter::SCE2AnnData( sscr$G_emb )
+     sref = reticulate::import("simba", convert=FALSE)
+     adall = sref$tl$embed( adata_ref = adC, list_adata_query = list(adG) )
+     zellkonverter::AnnData2SCE(adall)
+    }, sscr )
+}
+
+#' view mutual embedding
+#' @param scej a SingleCellExperiment instance produced by `joint_emb_CG`
+#' @param cname character(1) an element of colData to be used for coloring
+#' @param ptsize for `geom_point` size
+#' @param ltxtsize for `legend.text`
+#' @param lkeysize for `legend.key.size` in cm
+#' @param \dots passed to uwot::umap
+#' @return a ggplot instance
+#' @export
+viz_joint_umap = function (scej, cname, ptsize = 3, 
+    ltxtsize = 30, lkeysize = 1.5, ...) {
+    stopifnot(inherits(scej, "SingleCellExperiment"))
+    stopifnot(cname %in% names(colData(scej)))
+    uu = uwot::umap(t(assay(scej)), ...)
+    txt = lab = colData(scej)[[cname]]
+    if (any(isg <- is.na(lab))) 
+        lab[is.na(lab)] = "gene"
+    txt[which(isg)] = colnames(scej)[which(isg)]
+    ndf = data.frame(x = uu[, 1], y = uu[, 2], fac = lab)
+    ggplot(ndf, aes(x = x, y = y, colour = fac, text = txt)) + 
+        geom_point(size = ptsize, alpha=.8) + theme(legend.text = element_text(size = ltxtsize)) + 
+        theme(legend.key.size = unit(lkeysize, "cm"))
+}
