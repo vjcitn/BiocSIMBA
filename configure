@@ -1,3 +1,4 @@
 #!/bin/sh
 # ONLY FOR LOCAL VJC DEV
-R_LIBS=/home/vincent/R/x86_64-pc-linux-gnu-library/4.3_bc38  $HOME/R-4-3-dist/bin/Rscript -e "basilisk::configureBasiliskEnv()"
+#R_LIBS=/home/vincent/R/x86_64-pc-linux-gnu-library/4.3_bc38  $HOME/R-4-3-dist/bin/Rscript -e "basilisk::configureBasiliskEnv()"
+Rscript -e "basilisk::configureBasiliskEnv()"
