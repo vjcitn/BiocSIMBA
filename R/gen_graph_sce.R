@@ -85,31 +85,35 @@ annotate_C_emb = function(sscr, orig_var) {
  sscr
 }
 
-
-
-gen_graph_sce_bad = function(h5adpath, simconf = simba_config(gen_graph_copy=FALSE)) {
-  proc = basilisk::basiliskStart(bsklenv, testload="simba") # avoid package-specific import
-  basilisk::basiliskRun(proc, function(h5ad, simba_config) {
-     conf = simconf
-     sref = reticulate::import("simba")
-     sref$settings$set_workdir(conf$workdir)
-     adata_CG = sref$read_h5ad(h5adpath)
-     if (!is.null(conf$min_n_genes)) sref$pp$filter_cells_rna(adata_CG,
-               as.integer(conf$min_n_genes))
-     sref$pp$normalize(adata_CG, method = conf$norm_method)
-     sref$pp$log_transform(adata_CG)
-     if (!is.null(conf$n_top_genes)) sref$pp$select_variable_genes(adata_CG,
-               as.integer(conf$n_top_genes))
-     sref$tl$discretize(adata_CG, n_bins = as.integer(conf$disc_n_bins))
-    # generate graph
-     gdf = sref$tl$gen_graph(list_CG=list(adata_CG), copy=conf$gen_graph_copy,
-	use_highly_variable = conf$gen_graph_hvg, dirname = conf$gen_graph_dirname) 
-     sref$tl$pbg_train(auto_wd = TRUE, save_wd = TRUE, output = 'model' ) # produces files under 'model'
-     dict = sref$read_embedding()
-     C_emb = zellkonverter::AnnData2SCE(dict['C'])
-     G_emb = zellkonverter::AnnData2SCE(dict['G'])
-     work_contents = dir(conf$workdir, full.names=TRUE)
-     list(gdf = gdf, work_contents=work_contents, workdir=conf$workdir, C_emb=C_emb, G_emb=G_emb)
-     }, h5adpath, simconf)
+#' get a fitted simba_scrna for pbmc 3k
+#' @export
+get_fitted_3k = function() {
+ readRDS(system.file("gout/gout3k.rds", package="BiocSIMBA"))
 }
+
+#' visualize the cell embedding
+#' @import ggplot2
+#' @importFrom uwot umap
+#' @param gout instance of `simba_scrna` with annotated C_emb component
+#' @param colour_by character(1) factor in colData of C_emb for colouring
+#' @param ptsize for `geom_point` size
+#' @param ltxtsize for `legend.text`
+#' @param lkeysize for `legend.key.size` in cm
+#' @param \dots passed to uwot::umap
+#' @return a ggplot instance
+#' @examples
+#' g3k = get_fitted_3k()
+#' viz_cemb_umap(g3k, "celltype")
+#' @export
+viz_cemb_umap = function(gout, colour_by, ptsize=5, ltxtsize=30,
+   lkeysize=1.5, ...) {
+  stopifnot(inherits(gout, "simba_scrna"))
+  stopifnot(colour_by %in% names(colData(gout$C_emb)))
+  um = uwot::umap(t(assay(gout$C_emb)), ...)
+  dd = data.frame(x=um[,1], y=um[,2], fac=colData(gout$C_emb)[[colour_by]])
+  ggplot(dd, aes(x=x,y=y,colour=fac, text=fac)) + geom_point(size=ptsize) + theme(legend.text=element_text(size=ltxtsize)) + theme(legend.key.size=unit(1.5, "cm"))
+}
+
+
+#ggplot(nn, aes(x=x,y=y,colour=type)) + geom_point(size=5) + theme(legend.text=element_text(size=30)) + theme(legend.key.size=unit(1.5, "cm"))
 
