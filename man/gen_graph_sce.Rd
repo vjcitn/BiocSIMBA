@@ -34,4 +34,6 @@ gout = gen_graph_sce(h5adpath, simconf = simba_config(gen_graph_copy=TRUE)) # ge
 gout$gdf
 dir(gout$work_contents, full.names=TRUE, recursive=TRUE)
 gout
+gout = annotate_C_emb(gout, "celltype")
+names(colData(gout$C_emb))
 }

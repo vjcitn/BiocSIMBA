@@ -24,6 +24,8 @@
 #' gout$gdf
 #' dir(gout$work_contents, full.names=TRUE, recursive=TRUE)
 #' gout
+#' gout = annotate_C_emb(gout, "celltype")
+#' names(colData(gout$C_emb))
 #' @export
 gen_graph_sce = function (h5adpath, simconf = simba_config(gen_graph_copy = FALSE)) 
 {
@@ -65,6 +67,24 @@ print.simba_scrna = function(x, ...) {
         dd[1], dd[2]))
   cat(sprintf("  The workdir used was %s.\n", x$workdir))
 }
+
+#' propagate a colData variable to cell embedding; endomorphism
+#' @param sscr instance of simba_scrna
+#' @param orig_var character(1) must be element of `colData(sscr$ppCG)`
+#' @return updated simba_scrna instance with `C_emb` colData updated
+#' @export
+annotate_C_emb = function(sscr, orig_var) {
+ stopifnot(inherits(sscr, "simba_scrna"))
+ orig = sscr$ppCG
+ Cemb = sscr$C_emb
+ vals = colData(orig)[[orig_var]]
+ names(vals) = colnames(orig)
+ vals_reord = vals[colnames(Cemb)]
+ colData(Cemb)[[orig_var]] = as.character(vals_reord)
+ sscr$C_emb = Cemb
+ sscr
+}
+
 
 
 gen_graph_sce_bad = function(h5adpath, simconf = simba_config(gen_graph_copy=FALSE)) {
