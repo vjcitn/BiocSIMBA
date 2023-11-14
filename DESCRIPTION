@@ -1,7 +1,7 @@
 Package: BiocSIMBA
 Date: 2023-11-10
 Title: Interface to Pinellolab SIMBA and pytorch biggraph for graph embedding for multiomics
-Version: 0.0.0
+Version: 0.0.1
 Authors@R: 
     c(person(
         "Vincent", "Carey", role = c("aut", "cre"),
