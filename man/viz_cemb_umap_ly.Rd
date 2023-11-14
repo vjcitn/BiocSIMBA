@@ -21,5 +21,6 @@ interactively visualize the cell embedding
 }
 \examples{
 g3k = get_fitted_3k()
+set.seed(1234) # reproducible UMAP layout?
 viz_cemb_umap_ly(g3k, "celltype")
 }

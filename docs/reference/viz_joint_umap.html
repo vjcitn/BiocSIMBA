@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">BiocSIMBA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
       </span>
     </div>
 
@@ -53,7 +53,15 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">viz_joint_umap</span><span class="op">(</span><span class="va">scej</span>, <span class="va">cname</span>, ptsize <span class="op">=</span> <span class="fl">3</span>, ltxtsize <span class="op">=</span> <span class="fl">30</span>, lkeysize <span class="op">=</span> <span class="fl">1.5</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">viz_joint_umap</span><span class="op">(</span></span>
+<span>  <span class="va">scej</span>,</span>
+<span>  <span class="va">cname</span>,</span>
+<span>  plotit <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ptsize <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  ltxtsize <span class="op">=</span> <span class="fl">30</span>,</span>
+<span>  lkeysize <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -64,6 +72,11 @@
 
 <dt>cname</dt>
 <dd><p>character(1) an element of colData to be used for coloring</p></dd>
+
+
+<dt>plotit</dt>
+<dd><p>logical(1) if FALSE, just return umap dataframe with cname in column `fac`,
+and rownames disclosing cell id or gene name</p></dd>
 
 
 <dt>ptsize</dt>
@@ -86,9 +99,22 @@
     <h2>Value</h2>
     
 
-<p>a ggplot instance</p>
+<p>a ggplot instance, unless plotit is FALSE, in which case a data.frame is returned</p>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">g3k</span> <span class="op">=</span> <span class="fu"><a href="get_fitted_3k.html">get_fitted_3k</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">jj</span> <span class="op">=</span> <span class="fu"><a href="joint_emb_CG.html">joint_emb_CG</a></span><span class="op">(</span> <span class="va">g3k</span> <span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using the <span style="color: #00BB00;">'X'</span> assay as the <span style="color: #00BB00;">X matrix</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using the <span style="color: #00BB00;">'X'</span> assay as the <span style="color: #00BB00;">X matrix</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ndf</span> <span class="op">=</span> <span class="fu">viz_joint_umap</span><span class="op">(</span> <span class="va">jj</span>, <span class="st">"celltype"</span>, plotit<span class="op">=</span><span class="cn">FALSE</span> <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ndf</span><span class="op">[</span><span class="st">"CD14"</span>,<span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              x        y  fac</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CD14 -1.688189 12.72121 gene</span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

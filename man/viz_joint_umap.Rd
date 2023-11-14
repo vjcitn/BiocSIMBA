@@ -4,12 +4,23 @@
 \alias{viz_joint_umap}
 \title{view mutual embedding}
 \usage{
-viz_joint_umap(scej, cname, ptsize = 3, ltxtsize = 30, lkeysize = 1.5, ...)
+viz_joint_umap(
+  scej,
+  cname,
+  plotit = TRUE,
+  ptsize = 3,
+  ltxtsize = 30,
+  lkeysize = 1.5,
+  ...
+)
 }
 \arguments{
 \item{scej}{a SingleCellExperiment instance produced by `joint_emb_CG`}
 
 \item{cname}{character(1) an element of colData to be used for coloring}
+
+\item{plotit}{logical(1) if FALSE, just return umap dataframe with cname in column `fac`,
+and rownames disclosing cell id or gene name}
 
 \item{ptsize}{for `geom_point` size}
 
@@ -20,8 +31,15 @@ viz_joint_umap(scej, cname, ptsize = 3, ltxtsize = 30, lkeysize = 1.5, ...)
 \item{\dots}{passed to uwot::umap}
 }
 \value{
-a ggplot instance
+a ggplot instance, unless plotit is FALSE, in which case a data.frame is returned
 }
 \description{
 view mutual embedding
+}
+\examples{
+g3k = get_fitted_3k()
+jj = joint_emb_CG( g3k )
+set.seed(1234)
+ndf = viz_joint_umap( jj, "celltype", plotit=FALSE )
+ndf["CD14",]
 }

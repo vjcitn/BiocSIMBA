@@ -138,13 +138,21 @@ joint_emb_CG = function( sscr )
 #' view mutual embedding
 #' @param scej a SingleCellExperiment instance produced by `joint_emb_CG`
 #' @param cname character(1) an element of colData to be used for coloring
+#' @param plotit logical(1) if FALSE, just return umap dataframe with cname in column `fac`,
+#' and rownames disclosing cell id or gene name
 #' @param ptsize for `geom_point` size
 #' @param ltxtsize for `legend.text`
 #' @param lkeysize for `legend.key.size` in cm
 #' @param \dots passed to uwot::umap
-#' @return a ggplot instance
+#' @return a ggplot instance, unless plotit is FALSE, in which case a data.frame is returned
+#' @examples
+#' g3k = get_fitted_3k()
+#' jj = joint_emb_CG( g3k )
+#' set.seed(1234)
+#' ndf = viz_joint_umap( jj, "celltype", plotit=FALSE )
+#' ndf["CD14",]
 #' @export
-viz_joint_umap = function (scej, cname, ptsize = 3, 
+viz_joint_umap = function (scej, cname, plotit = TRUE, ptsize = 3, 
     ltxtsize = 30, lkeysize = 1.5, ...) {
     stopifnot(inherits(scej, "SingleCellExperiment"))
     stopifnot(cname %in% names(colData(scej)))
@@ -154,6 +162,7 @@ viz_joint_umap = function (scej, cname, ptsize = 3,
         lab[is.na(lab)] = "gene"
     txt[which(isg)] = colnames(scej)[which(isg)]
     ndf = data.frame(x = uu[, 1], y = uu[, 2], fac = lab)
+    if (!plotit) return(ndf)
     ggplot(ndf, aes(x = x, y = y, colour = fac, text = txt)) + 
         geom_point(size = ptsize, alpha=.8) + theme(legend.text = element_text(size = ltxtsize)) + 
         theme(legend.key.size = unit(lkeysize, "cm"))
@@ -185,6 +194,7 @@ viz_joint_umap = function (scej, cname, ptsize = 3,
 #' @return a plotly instance
 #' @examples
 #' g3k = get_fitted_3k()
+#' set.seed(1234) # reproducible UMAP layout?
 #' viz_cemb_umap_ly(g3k, "celltype")
 #' @export
 viz_cemb_umap_ly = function(gout, colour_by, ...) {
@@ -200,14 +210,16 @@ viz_cemb_umap_ly = function(gout, colour_by, ...) {
 #' @import plotly
 #' @param scej a SingleCellExperiment instance produced by `joint_emb_CG`
 #' @param cname character(1) an element of colData to be used for coloring
+#' @param opacity numeric(1) value between 0 and 1
 #' @param \dots passed to uwot::umap
 #' @return a plotly instance
 #' @examples
 #' g3k = get_fitted_3k()
 #' jj = joint_emb_CG( g3k )
+#' set.seed(1234) # reproducible UMAP layout?
 #' viz_joint_umap_ly(jj, "celltype")
 #' @export
-viz_joint_umap_ly = function(scej, cname, ...) {
+viz_joint_umap_ly = function(scej, cname, opacity = .6, ...) {
     stopifnot(inherits(scej, "SingleCellExperiment"))
     stopifnot(cname %in% names(colData(scej)))
     uu = uwot::umap(t(assay(scej)), ...)
@@ -216,7 +228,7 @@ viz_joint_umap_ly = function(scej, cname, ...) {
         lab[is.na(lab)] = "gene"
     txt[which(isg)] = colnames(scej)[which(isg)]
     ndf = data.frame(x = uu[, 1], y = uu[, 2], fac = lab, txt=txt)
-    plotly::plot_ly(ndf, x = ~x, y = ~y, color = ~fac,
+    plotly::plot_ly(ndf, x = ~x, y = ~y, color = ~fac, opacity = opacity,
         mode = "markers", text = ~txt, type="scatter")
 }
 

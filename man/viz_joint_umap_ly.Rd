@@ -4,12 +4,14 @@
 \alias{viz_joint_umap_ly}
 \title{interactively visualize the joint embedding}
 \usage{
-viz_joint_umap_ly(scej, cname, ...)
+viz_joint_umap_ly(scej, cname, opacity = 0.6, ...)
 }
 \arguments{
 \item{scej}{a SingleCellExperiment instance produced by `joint_emb_CG`}
 
 \item{cname}{character(1) an element of colData to be used for coloring}
+
+\item{opacity}{numeric(1) value between 0 and 1}
 
 \item{\dots}{passed to uwot::umap}
 }
@@ -22,5 +24,6 @@ interactively visualize the joint embedding
 \examples{
 g3k = get_fitted_3k()
 jj = joint_emb_CG( g3k )
+set.seed(1234) # reproducible UMAP layout?
 viz_joint_umap_ly(jj, "celltype")
 }
